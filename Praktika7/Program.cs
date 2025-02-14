@@ -33,7 +33,7 @@ namespace Praktika7
                         Console.WriteLine(PrintFinanceReport());
                         break;
                     case "3":
-                        Console.WriteLine();
+                        Console.WriteLine(CalculateBalance());
                         break;
                     case "4":
                         Console.WriteLine();
@@ -80,8 +80,16 @@ namespace Praktika7
             }
             return report;
         }
-        
-        
+        public static string CalculateBalance()
+        {
+            double income = finances.ContainsKey("Доход") ? finances["Доход"].Sum() : 0;
+            double expenses = finances.Where(f => f.Key != "Доход").Sum(f => f.Value.Sum());
+            double balance = income - expenses;
+            return $"Текущий баланс: {balance} руб";
+        }
+
+
+
     }
 }
 
