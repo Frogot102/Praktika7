@@ -36,10 +36,10 @@ namespace Praktika7
                         Console.WriteLine(CalculateBalance());
                         break;
                     case "4":
-                        Console.WriteLine();
+                        Console.WriteLine(PredictNextMonthExpenses());
                         break;
                     case "5":
-                        Console.WriteLine();
+                        Console.WriteLine(PrintStatistics());
                         break;
                     case "6":
                         Console.WriteLine("Выход из программы.");
@@ -87,9 +87,64 @@ namespace Praktika7
             double balance = income - expenses;
             return $"Текущий баланс: {balance} руб";
         }
+        public static string PredictNextMonthExpenses()
+        {
+            double totalExpenses = 0;
+            int totalCategories = 0;
+
+            foreach (var category in finances.Where(f => f.Key != "Доход"))
+            {
+                totalExpenses += GetAverageExpense(category.Key);
+                totalCategories++;
+            }
+
+            double prediction = totalCategories > 0 ? totalExpenses / totalCategories : 0;
+            return $"Прогнозируемые расходы на следующий месяц: {prediction} руб.";
+        }
+
+        public static double GetAverageExpense(string category)
+        {
+            if (finances.ContainsKey(category) && finances[category].Count > 0)
+            {
+                return finances[category].Average();
+            }
+            return 0;
+        }
+
+        public static string PrintStatistics()
+        {
+            double totalExpenses = finances.Where(f => f.Key != "Доход").Sum(f => f.Value.Sum());
+            var stats = $"Общая сумма расходов: {totalExpenses} руб.\n";
+
+            var mostExpensesCategory = finances.Where(f => f.Key != "Доход")
+                                                .OrderByDescending(f => f.Value.Sum())
+                                                .FirstOrDefault();
+            if (mostExpensesCategory.Key != null)
+            {
+                stats += $"Самая затратная категория: {mostExpensesCategory.Key} ({mostExpensesCategory.Value.Sum()} руб.)\n";
+            }
+
+            var mostFrequentCategory = finances.Where(f => f.Key != "Доход")
+                                                .OrderByDescending(f => f.Value.Count)
+                                                .FirstOrDefault();
+            if (mostFrequentCategory.Key != null)
+            {
+                stats += $"Самая частая категория: {mostFrequentCategory.Key} ({mostFrequentCategory.Value.Count} операций)\n";
+            }
+
+            stats += "Процентное распределение расходов:\n";
+            double total = finances.Where(f => f.Key != "Доход").Sum(f => f.Value.Sum());
+            foreach (var category in finances.Where(f => f.Key != "Доход"))
+            {
+                double categoryTotal = category.Value.Sum();
+                double percentage = total > 0 ? (categoryTotal / total) * 100 : 0;
+                stats += $"{category.Key}: {categoryTotal} руб. ({percentage:F2}%)\n";
+            }
+
+            return stats;
 
 
-
+        }
     }
 }
 
